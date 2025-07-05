@@ -353,7 +353,7 @@ const APRSMap: React.FC<APRSMapProps> = ({
         <Popup>
           <div className="user-location-popup">
             <h4>📍 Your Location</h4>
-            <p>{userLocation.latitude.toFixed(6)}, {userLocation.longitude.toFixed(6)}</p>
+            <p>{Number(userLocation.latitude).toFixed(6)}, {Number(userLocation.longitude).toFixed(6)}</p>
           </div>
         </Popup>
       </Marker>
@@ -567,7 +567,7 @@ const APRSMap: React.FC<APRSMapProps> = ({
           </div>
           <div className="panel-content">
             <div className="station-details">
-              <p><strong>Position:</strong> {selectedStation.latitude!.toFixed(6)}, {selectedStation.longitude!.toFixed(6)}</p>
+              <p><strong>Position:</strong> {Number(selectedStation.latitude!).toFixed(6)}, {Number(selectedStation.longitude!).toFixed(6)}</p>
               <p><strong>Symbol:</strong> {getStationEmoji(selectedStation.symbol_table, selectedStation.symbol_code)} ({selectedStation.symbol_table}{selectedStation.symbol_code})</p>
               <p><strong>Last Seen:</strong> {formatLastSeen(selectedStation.last_heard)}</p>
               <p><strong>Packet Count:</strong> {selectedStation.packet_count}</p>

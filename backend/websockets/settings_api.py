@@ -35,8 +35,8 @@ def user_settings(request):
                         'ssid': settings_obj.ssid,
                         'passcode': settings_obj.passcode,
                         'location': {
-                            'latitude': str(settings_obj.latitude),
-                            'longitude': str(settings_obj.longitude),
+                            'latitude': float(settings_obj.latitude),
+                            'longitude': float(settings_obj.longitude),
                             'source': settings_obj.location_source
                         } if settings_obj.latitude and settings_obj.longitude else None,
                         'autoGeneratePasscode': settings_obj.auto_generate_passcode,

@@ -309,7 +309,7 @@ const UserSettingsSimple: React.FC<UserSettingsSimpleProps> = ({
               
               {settings.location ? (
                 <div className="location-display">
-                  <span>📍 {settings.location.latitude.toFixed(4)}, {settings.location.longitude.toFixed(4)}</span>
+                  <span>📍 {Number(settings.location.latitude).toFixed(4)}, {Number(settings.location.longitude).toFixed(4)}</span>
                   <button onClick={() => updateSettings({ location: null })}>Clear</button>
                 </div>
               ) : (
