@@ -1,0 +1,253 @@
+.App {
+  text-align: center;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #f5f5f5;
+}
+
+.App-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+  color: white;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.App-header h1 {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.App-header p {
+  margin: 5px 0 0 0;
+  font-size: 1rem;
+  opacity: 0.9;
+}
+
+.App-main {
+  flex: 1;
+  display: flex;
+  gap: 20px;
+  padding: 20px;
+  max-height: calc(100vh - 140px);
+}
+
+.map-container {
+  flex: 1;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  overflow: hidden;
+  min-height: 600px;
+}
+
+.sidebar {
+  width: 350px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.panel {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  padding: 20px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.panel h3 {
+  margin: 0 0 15px 0;
+  font-size: 1.2rem;
+  color: #333;
+  border-bottom: 2px solid #e0e0e0;
+  padding-bottom: 10px;
+}
+
+.station-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  margin: 5px 0;
+  background: #f8f9fa;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.station-item:hover {
+  background: #e9ecef;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.station-emoji {
+  font-size: 1.5rem;
+}
+
+.station-info {
+  flex: 1;
+  text-align: left;
+}
+
+.station-callsign {
+  font-weight: bold;
+  color: #333;
+}
+
+.station-details {
+  font-size: 0.85rem;
+  color: #666;
+  margin-top: 2px;
+}
+
+.weather-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.weather-item:last-child {
+  border-bottom: none;
+}
+
+.weather-label {
+  font-weight: 500;
+  color: #333;
+}
+
+.weather-value {
+  color: #666;
+  font-family: 'Courier New', monospace;
+}
+
+.message-item {
+  padding: 10px;
+  margin: 5px 0;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border-left: 4px solid #007bff;
+}
+
+.message-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.message-from {
+  font-weight: bold;
+  color: #007bff;
+}
+
+.message-time {
+  font-size: 0.8rem;
+  color: #999;
+}
+
+.message-text {
+  text-align: left;
+  font-size: 0.9rem;
+  color: #333;
+}
+
+.loading {
+  text-align: center;
+  color: #666;
+  padding: 20px;
+}
+
+.error {
+  color: #dc3545;
+  background: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 5px;
+  padding: 10px;
+  margin: 10px 0;
+}
+
+/* Map specific styles */
+.leaflet-container {
+  height: 100%;
+  width: 100%;
+  border-radius: 10px;
+}
+
+.station-popup {
+  max-width: 200px;
+}
+
+.station-popup .popup-callsign {
+  font-weight: bold;
+  font-size: 1.1rem;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.station-popup .popup-details {
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.station-popup .popup-time {
+  font-size: 0.8rem;
+  color: #666;
+  margin-top: 5px;
+  font-style: italic;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .App-main {
+    flex-direction: column;
+    padding: 10px;
+  }
+  
+  .sidebar {
+    width: 100%;
+  }
+  
+  .map-container {
+    min-height: 400px;
+  }
+  
+  .panel {
+    max-height: 200px;
+  }
+}
+
+/* Status indicators */
+.status-connected {
+  color: #28a745;
+}
+
+.status-disconnected {
+  color: #dc3545;
+}
+
+.status-connecting {
+  color: #ffc107;
+}
+
+/* Animation for real-time updates */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.new-data {
+  animation: pulse 0.3s ease-in-out;
+}
