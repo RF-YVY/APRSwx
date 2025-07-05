@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Clear APRSwx Settings</title>
+</head>
+<body>
+    <h1>Clear APRSwx Settings</h1>
+    <button onclick="clearSettings()">Clear All Settings</button>
+    <div id="result"></div>
+    
+    <script>
+        function clearSettings() {
+            try {
+                // Clear localStorage
+                localStorage.removeItem('aprswx_settings');
+                
+                // Clear sessionStorage just in case
+                sessionStorage.removeItem('aprswx_settings');
+                
+                // Clear all localStorage items that might be related
+                Object.keys(localStorage).forEach(key => {
+                    if (key.includes('aprswx') || key.includes('aprs')) {
+                        localStorage.removeItem(key);
+                    }
+                });
+                
+                document.getElementById('result').innerHTML = 
+                    '<p style="color: green;">All settings cleared from browser storage!</p>' +
+                    '<p>Refresh the APRSwx page to see the changes.</p>';
+                
+            } catch (error) {
+                document.getElementById('result').innerHTML = 
+                    '<p style="color: red;">Error clearing settings: ' + error.message + '</p>';
+            }
+        }
+        
+        // Show current localStorage content
+        window.onload = function() {
+            const aprswxSettings = localStorage.getItem('aprswx_settings');
+            if (aprswxSettings) {
+                document.getElementById('result').innerHTML = 
+                    '<p><strong>Current localStorage settings:</strong></p>' +
+                    '<pre>' + JSON.stringify(JSON.parse(aprswxSettings), null, 2) + '</pre>';
+            } else {
+                document.getElementById('result').innerHTML = 
+                    '<p>No APRSwx settings found in localStorage.</p>';
+            }
+        };
+    </script>
+</body>
+</html>

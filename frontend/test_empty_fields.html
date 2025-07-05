@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APRSwx Settings Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .test-section h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .info {
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .clear-btn {
+            background-color: #dc3545;
+        }
+        .clear-btn:hover {
+            background-color: #c82333;
+        }
+        code {
+            background-color: #f8f9fa;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🧪 APRSwx Settings Input Field Test</h1>
+        
+        <div class="test-section">
+            <h3>📋 Test Checklist</h3>
+            <p>Follow these steps to verify that input fields are empty by default:</p>
+            <ol>
+                <li>Make sure both backend and frontend servers are running</li>
+                <li>Open APRSwx in a new browser tab/window: <a href="http://localhost:3000" target="_blank">http://localhost:3000</a></li>
+                <li>Click the "⚙️ Settings" button</li>
+                <li>Check that ALL input fields are empty (no text visible)</li>
+                <li>Check that placeholder text is visible but grayed out</li>
+                <li>Try typing in each field - no backspacing should be needed</li>
+            </ol>
+        </div>
+
+        <div class="test-section">
+            <h3>🔍 Expected Behavior</h3>
+            <div class="info">
+                <strong>✅ Correct Behavior:</strong>
+                <ul>
+                    <li><strong>Callsign field:</strong> Empty with gray placeholder "N0CALL"</li>
+                    <li><strong>SSID field:</strong> Empty with gray placeholder "0"</li>
+                    <li><strong>Passcode field:</strong> Empty with gray placeholder "Auto-generated"</li>
+                    <li><strong>All other fields:</strong> Empty or default values, no test data</li>
+                </ul>
+            </div>
+            <div class="error">
+                <strong>❌ Incorrect Behavior:</strong>
+                <ul>
+                    <li>Any field showing "W1AW", "TEST", or other pre-filled text</li>
+                    <li>User having to backspace to clear existing text</li>
+                    <li>Placeholder text not visible or not grayed out</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>🛠️ Troubleshooting Tools</h3>
+            <button onclick="testBackendAPI()">Test Backend API</button>
+            <button onclick="clearBrowserStorage()" class="clear-btn">Clear Browser Storage</button>
+            <button onclick="checkDatabaseStatus()">Check Database Status</button>
+            <div id="test-results"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>🔧 Technical Details</h3>
+            <p>The fix involved several components:</p>
+            <ul>
+                <li><strong>Backend API:</strong> Returns <code>settings: null</code> when no settings exist</li>
+                <li><strong>Frontend Context:</strong> Properly handles null settings and sets empty defaults</li>
+                <li><strong>Input Fields:</strong> Use <code>value={settings.callsign || ''}</code> logic</li>
+                <li><strong>Database:</strong> Cleared of all test/default data</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        async function testBackendAPI() {
+            const resultsDiv = document.getElementById('test-results');
+            resultsDiv.innerHTML = '<div class="info">Testing backend API...</div>';
+            
+            try {
+                const response = await fetch('http://localhost:8000/api/websockets/settings/', {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && data.settings === null) {
+                        resultsDiv.innerHTML = '<div class="success">✅ Backend API is working correctly - returns null for new sessions</div>';
+                    } else {
+                        resultsDiv.innerHTML = '<div class="error">❌ Backend API issue - settings should be null but got: ' + JSON.stringify(data.settings) + '</div>';
+                    }
+                } else {
+                    resultsDiv.innerHTML = '<div class="error">❌ Backend API request failed with status: ' + response.status + '</div>';
+                }
+            } catch (error) {
+                resultsDiv.innerHTML = '<div class="error">❌ Backend API error: ' + error.message + '</div>';
+            }
+        }
+
+        function clearBrowserStorage() {
+            localStorage.clear();
+            sessionStorage.clear();
+            document.getElementById('test-results').innerHTML = '<div class="success">✅ Browser storage cleared. Refresh the APRSwx page to test.</div>';
+        }
+
+        async function checkDatabaseStatus() {
+            const resultsDiv = document.getElementById('test-results');
+            resultsDiv.innerHTML = '<div class="info">Checking database status...</div>';
+            
+            try {
+                const response = await fetch('http://localhost:8000/api/websockets/settings/', {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && data.settings === null) {
+                        resultsDiv.innerHTML = '<div class="success">✅ Database is clean - no settings found for new sessions</div>';
+                    } else {
+                        resultsDiv.innerHTML = '<div class="error">❌ Database has settings that should not exist: ' + JSON.stringify(data.settings) + '</div>';
+                    }
+                } else {
+                    resultsDiv.innerHTML = '<div class="error">❌ Cannot check database status - API returned: ' + response.status + '</div>';
+                }
+            } catch (error) {
+                resultsDiv.innerHTML = '<div class="error">❌ Database check error: ' + error.message + '</div>';
+            }
+        }
+    </script>
+</body>
+</html>

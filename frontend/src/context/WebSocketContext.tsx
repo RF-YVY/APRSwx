@@ -84,14 +84,24 @@ function webSocketReducer(state: WebSocketState, action: WebSocketAction): WebSo
       };
     
     case 'UPDATE_STATION':
-      return {
-        ...state,
-        stations: state.stations.map(station =>
-          station.id === action.payload.id ? action.payload : station
-        ).concat(
-          state.stations.find(s => s.id === action.payload.id) ? [] : [action.payload]
-        )
-      };
+      // Optimize station updates to prevent UI glitching
+      const existingStationIndex = state.stations.findIndex(station => station.id === action.payload.id);
+      
+      if (existingStationIndex !== -1) {
+        // Update existing station without changing array length
+        const updatedStations = [...state.stations];
+        updatedStations[existingStationIndex] = action.payload;
+        return {
+          ...state,
+          stations: updatedStations
+        };
+      } else {
+        // Add new station only if not already present
+        return {
+          ...state,
+          stations: [...state.stations, action.payload]
+        };
+      }
     
     case 'SET_INITIAL_PACKETS':
       return {
@@ -193,6 +203,30 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children, 
   const reconnectAttempts = React.useRef(0);
   const maxReconnectAttempts = 5;
 
+  // Throttling for station updates to prevent UI glitching
+  const stationUpdateQueue = React.useRef<Map<string, any>>(new Map());
+  const stationUpdateTimer = React.useRef<number | null>(null);
+
+  const flushStationUpdates = useCallback(() => {
+    if (stationUpdateQueue.current.size > 0) {
+      // Process all queued station updates at once
+      stationUpdateQueue.current.forEach((station) => {
+        dispatch({ type: 'UPDATE_STATION', payload: station });
+      });
+      stationUpdateQueue.current.clear();
+    }
+    stationUpdateTimer.current = null;
+  }, []);
+
+  const queueStationUpdate = useCallback((station: any) => {
+    // Queue station update and throttle to prevent rapid re-renders
+    stationUpdateQueue.current.set(station.id, station);
+    
+    if (stationUpdateTimer.current === null) {
+      stationUpdateTimer.current = window.setTimeout(flushStationUpdates, 100); // 100ms throttle
+    }
+  }, [flushStationUpdates]);
+
   const connect = useCallback(() => {
     // Always establish WebSocket connection for the frontend to work properly
     // APRS-IS connection is handled separately via sendAPRSISConnect()
@@ -293,7 +327,7 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children, 
         break;
       
       case 'station_update':
-        dispatch({ type: 'UPDATE_STATION', payload: message.station });
+        queueStationUpdate(message.station);
         break;
       
       case 'initial_packets':

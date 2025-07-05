@@ -22,7 +22,7 @@ const UserSettingsSimple: React.FC<UserSettingsSimpleProps> = ({
   mapClickEnabled,
   onFocusLocation
 }) => {
-  const { settings, updateSettings } = useSettings();
+  const { settings, updateSettings, isLoading, saveError } = useSettings();
   const { aprsIsConnected, sendAPRSISConnect, sendAPRSISDisconnect } = useWebSocket();
   const [showSettings, setShowSettings] = useState(false);
   const [manualLocation, setManualLocation] = useState({ lat: '', lng: '' });
@@ -39,12 +39,16 @@ const UserSettingsSimple: React.FC<UserSettingsSimpleProps> = ({
 
   const handleCallsignChange = (value: string) => {
     const cleanCallsign = value.toUpperCase().trim();
-    updateSettings({ callsign: cleanCallsign });
+    
+    // Combine both updates into a single call to prevent race conditions
+    const updates: any = { callsign: cleanCallsign };
     
     if (cleanCallsign) {
       const passcode = APRSPasscodeGenerator.generatePasscode(cleanCallsign);
-      updateSettings({ passcode });
+      updates.passcode = passcode;
     }
+    
+    updateSettings(updates);
   };
 
   const handleSSIDChange = (value: number) => {
@@ -180,8 +184,9 @@ const UserSettingsSimple: React.FC<UserSettingsSimpleProps> = ({
           onClick={() => setShowSettings(true)}
           className="settings-toggle-btn"
           title="Open Settings"
+          disabled={isLoading}
         >
-          ⚙️ Settings
+          ⚙️ Settings {isLoading && '(Loading...)'}
         </button>
       </div>
     );
@@ -202,10 +207,23 @@ const UserSettingsSimple: React.FC<UserSettingsSimpleProps> = ({
           <button 
             onClick={() => setShowSettings(false)}
             className="close-btn"
+            title="Close Settings"
           >
-            ✕
+            ×
           </button>
         </div>
+        
+        {isLoading && (
+          <div className="settings-loading">
+            <div className="loading-message">Loading settings...</div>
+          </div>
+        )}
+        
+        {saveError && (
+          <div className="settings-error">
+            <div className="error-message">{saveError}</div>
+          </div>
+        )}
         
         <div className="settings-content">
           <div className="settings-form">
@@ -218,11 +236,12 @@ const UserSettingsSimple: React.FC<UserSettingsSimpleProps> = ({
                   <label>Callsign:</label>
                   <input
                     type="text"
-                    value={settings.callsign}
+                    value={settings.callsign || ''}
                     onChange={(e) => handleCallsignChange(e.target.value)}
-                    placeholder="Enter your callsign"
+                    placeholder="N0CALL"
                     className="setting-input"
                     maxLength={6}
+                    disabled={isLoading}
                   />
                 </div>
                 <div className="ssid-separator">-</div>
@@ -230,12 +249,13 @@ const UserSettingsSimple: React.FC<UserSettingsSimpleProps> = ({
                   <label>SSID:</label>
                   <input
                     type="number"
-                    value={settings.ssid}
+                    value={settings.ssid === 0 ? '' : settings.ssid}
                     onChange={(e) => handleSSIDChange(parseInt(e.target.value) || 0)}
                     min={0}
                     max={15}
                     className="setting-input"
                     placeholder="0"
+                    disabled={isLoading}
                   />
                 </div>
               </div>
@@ -252,7 +272,7 @@ const UserSettingsSimple: React.FC<UserSettingsSimpleProps> = ({
               <small>Auto-generated verification code based on your callsign</small>
               <input
                 type="number"
-                value={settings.passcode}
+                value={settings.passcode === -1 ? '' : settings.passcode}
                 readOnly
                 className="setting-input"
                 placeholder="Auto-generated"

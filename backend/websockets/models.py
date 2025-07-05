@@ -268,3 +268,75 @@ class SystemMessage(models.Model):
         if self.ends_at and self.ends_at < now:
             return False
         return True
+
+
+class UserSettings(models.Model):
+    """Model for storing user settings and preferences"""
+    
+    # User identification
+    session_key = models.CharField(max_length=100, unique=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    
+    # APRS Station Settings
+    callsign = models.CharField(max_length=10, blank=True)
+    ssid = models.IntegerField(default=0)
+    passcode = models.IntegerField(default=-1)
+    auto_generate_passcode = models.BooleanField(default=True)
+    
+    # Location Settings
+    latitude = models.DecimalField(max_digits=10, decimal_places=7, null=True, blank=True)
+    longitude = models.DecimalField(max_digits=10, decimal_places=7, null=True, blank=True)
+    location_source = models.CharField(max_length=20, default='manual')  # 'gps', 'manual', 'map'
+    
+    # Display Settings
+    distance_unit = models.CharField(max_length=10, default='km')  # 'km' or 'miles'
+    dark_theme = models.BooleanField(default=False)
+    
+    # APRS-IS Filter Settings
+    filter_distance_range = models.IntegerField(default=100)
+    filter_station_types = models.TextField(blank=True)  # JSON array
+    filter_enable_weather = models.BooleanField(default=True)
+    filter_enable_messages = models.BooleanField(default=True)
+    
+    # TNC Settings (stored as JSON)
+    tnc_settings = models.TextField(blank=True)  # JSON object
+    
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        db_table = 'user_settings'
+        verbose_name = 'User Settings'
+        verbose_name_plural = 'User Settings'
+    
+    def __str__(self):
+        return f"Settings for {self.callsign or self.session_key}"
+
+    def get_location(self):
+        """Get location as dict"""
+        if self.latitude and self.longitude:
+            return {
+                'latitude': float(self.latitude),
+                'longitude': float(self.longitude),
+                'source': self.location_source
+            }
+        return None
+
+    def get_tnc_settings(self):
+        """Get TNC settings as dict"""
+        if self.tnc_settings:
+            try:
+                return json.loads(self.tnc_settings)
+            except json.JSONDecodeError:
+                return {}
+        return {}
+
+    def get_filter_station_types(self):
+        """Get filter station types as list"""
+        if self.filter_station_types:
+            try:
+                return json.loads(self.filter_station_types)
+            except json.JSONDecodeError:
+                return []
+        return []

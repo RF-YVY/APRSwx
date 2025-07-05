@@ -1,13 +1,14 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { SettingsService } from '../services/settingsService';
 
-interface UserLocation {
+export interface UserLocation {
   latitude: number;
   longitude: number;
   accuracy?: number;
   source: 'gps' | 'manual' | 'map';
 }
 
-interface UserSettings {
+export interface UserSettings {
   callsign: string;
   ssid: number;
   passcode: number;
@@ -115,6 +116,8 @@ interface SettingsContextType {
   settings: UserSettings;
   updateSettings: (updates: Partial<UserSettings>) => void;
   resetSettings: () => void;
+  isLoading: boolean;
+  saveError: string | null;
 }
 
 const SettingsContext = createContext<SettingsContextType | null>(null);
@@ -133,39 +136,89 @@ interface SettingsProviderProps {
 
 export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) => {
   const [settings, setSettings] = useState<UserSettings>(defaultSettings);
+  const [isLoading, setIsLoading] = useState(true);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
-  // Load settings from localStorage on mount
+  // Load settings from backend API on mount
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem('aprswx_settings');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        setSettings({ ...defaultSettings, ...parsed });
+    const loadSettings = async () => {
+      try {
+        setIsLoading(true);
+        const loadedSettings = await SettingsService.loadSettings();
+        
+        if (loadedSettings) {
+          console.log('Loaded settings from service:', loadedSettings);
+          // Always set aprsIsConnected to false on app start to prevent auto-connection
+          setSettings({ 
+            ...defaultSettings, 
+            ...loadedSettings, 
+            aprsIsConnected: false 
+          });
+        } else {
+          console.log('No settings found, using empty defaults');
+          // Use default settings if none found, but ensure truly empty fields
+          setSettings({
+            ...defaultSettings, 
+            callsign: '',          // Ensure empty callsign
+            ssid: 0,               // Default SSID but will show as empty in UI
+            passcode: -1,          // Ensure default passcode (will show as empty)
+            aprsIsConnected: false 
+          });
+        }
+      } catch (error) {
+        console.error('Error loading settings:', error);
+        setSaveError('Failed to load settings from server');
+        // Use default settings on error
+        setSettings(prev => ({ ...prev, aprsIsConnected: false }));
+      } finally {
+        setIsLoading(false);
       }
-    } catch (error) {
-      console.error('Error loading settings:', error);
-    }
+    };
+
+    loadSettings();
   }, []);
 
-  // Save settings to localStorage whenever they change
-  useEffect(() => {
+  const updateSettings = async (updates: Partial<UserSettings>) => {
+    const newSettings = { ...settings, ...updates };
+    setSettings(newSettings);
+    setSaveError(null);
+    
+    // Save to backend API
     try {
-      localStorage.setItem('aprswx_settings', JSON.stringify(settings));
+      const success = await SettingsService.saveSettings(newSettings);
+      if (!success) {
+        setSaveError('Failed to save settings to server');
+      }
     } catch (error) {
       console.error('Error saving settings:', error);
+      setSaveError('Failed to save settings to server');
     }
-  }, [settings]);
-
-  const updateSettings = (updates: Partial<UserSettings>) => {
-    setSettings(prev => ({ ...prev, ...updates }));
   };
 
-  const resetSettings = () => {
+  const resetSettings = async () => {
     setSettings(defaultSettings);
+    setSaveError(null);
+    
+    // Save reset settings to backend API
+    try {
+      const success = await SettingsService.saveSettings(defaultSettings);
+      if (!success) {
+        setSaveError('Failed to save settings to server');
+      }
+    } catch (error) {
+      console.error('Error saving reset settings:', error);
+      setSaveError('Failed to save settings to server');
+    }
   };
 
   return (
-    <SettingsContext.Provider value={{ settings, updateSettings, resetSettings }}>
+    <SettingsContext.Provider value={{ 
+      settings, 
+      updateSettings, 
+      resetSettings, 
+      isLoading, 
+      saveError 
+    }}>
       {children}
     </SettingsContext.Provider>
   );

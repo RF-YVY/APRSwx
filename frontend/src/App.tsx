@@ -44,7 +44,7 @@ function AppContent() {
   const [selectedStation, setSelectedStation] = useState<APRSStation | null>(null);
   const [focusStation, setFocusStation] = useState<APRSStation | null>(null);
   const [activePanel, setActivePanel] = useState<'stations' | 'weather' | 'messages'>('stations');
-  const { settings: userSettings, updateSettings } = useSettings();
+  const { settings: userSettings, updateSettings, isLoading: settingsLoading } = useSettings();
   const [mapClickEnabled, setMapClickEnabled] = useState(false);
   const [sidebarVisible, setSidebarVisible] = useState(true);
   const { isConnected, stations, packets } = useWebSocket();
@@ -95,6 +95,23 @@ function AppContent() {
     // Clear focus after a short delay to allow map to update
     setTimeout(() => setFocusStation(null), 100);
   };
+
+  // Show loading screen while settings are being loaded
+  if (settingsLoading) {
+    return (
+      <div className="App">
+        <div className="app-loading">
+          <div className="loading-content">
+            <h1>📡 APRSwx</h1>
+            <div className="loading-spinner">
+              <div className="spinner"></div>
+              <p>Loading settings...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="App">

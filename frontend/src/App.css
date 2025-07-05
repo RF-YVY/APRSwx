@@ -896,6 +896,8 @@ body.dark-theme .setting-input:focus {
 
 body.dark-theme .setting-input::placeholder {
   color: var(--text-muted);
+  opacity: 0.7;
+  font-style: italic;
 }
 
 body.dark-theme .callsign-container {
@@ -1191,6 +1193,8 @@ body.dark-theme .setting-group small {
 
 .setting-input::placeholder {
   color: var(--text-muted);
+  opacity: 0.7;
+  font-style: italic;
 }
 
 /* Callsign and SSID Row */
@@ -1591,263 +1595,59 @@ body.dark-theme .setting-group small {
   box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-  .settings-overlay {
-    padding: 10px;
-  }
-  
-  .settings-popup {
-    max-width: 100%;
-    max-height: 90vh;
-    touch-action: manipulation;
-  }
-  
-  .settings-content {
-    padding: 16px;
-  }
-  
-  .callsign-ssid-row {
-    flex-direction: column;
-    gap: 12px;
-  }
-  
-  .callsign-group {
-    flex: 1;
-  }
-  
-  .location-options {
-    flex-direction: column;
-  }
-  
-  .location-inputs {
-    flex-direction: column;
-  }
-  
-  .station-type-filters {
-    grid-template-columns: 1fr;
-  }
-  
-  .notification-container {
-    top: 10px;
-    right: 10px;
-    left: 10px;
-    max-width: none;
-  }
-  
-  .settings-toggle-btn {
-    padding: 6px 10px;
-    font-size: 12px;
-  }
-}
-
-/* TNC Settings Styles */
-.tnc-settings-expanded {
-  margin-top: 16px;
-  padding: 16px;
-  background: var(--bg-secondary);
-  border-radius: 8px;
-  border: 1px solid var(--border-color);
-}
-
-.tnc-settings-expanded h5 {
-  color: var(--accent-primary);
-  margin: 20px 0 12px 0;
-  font-size: 1.1rem;
-  font-weight: 600;
-  border-bottom: 2px solid var(--accent-primary);
-  padding-bottom: 4px;
-}
-
-.tnc-settings-expanded h5:first-child {
-  margin-top: 0;
-}
-
-.setting-row {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin-bottom: 16px;
-}
-
-.setting-row label {
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: var(--text-secondary);
-}
-
-.setting-select {
+/* App Loading Screen */
+.app-loading {
+  position: fixed;
+  top: 0;
+  left: 0;
   width: 100%;
-  padding: 10px 12px;
-  border: 2px solid var(--border-color);
-  border-radius: 6px;
+  height: 100%;
   background: var(--bg-primary);
-  color: var(--text-primary);
-  font-size: 14px;
-  transition: all 0.2s ease;
-}
-
-.setting-select:focus {
-  outline: none;
-  border-color: var(--accent-primary);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
-}
-
-.setting-slider {
-  width: 100%;
-  -webkit-appearance: none;
-  appearance: none;
-  height: 6px;
-  background: var(--bg-tertiary);
-  border-radius: 3px;
-  outline: none;
-  transition: all 0.2s ease;
-}
-
-.setting-slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 20px;
-  height: 20px;
-  background: var(--accent-primary);
-  border-radius: 50%;
-  cursor: pointer;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-  transition: all 0.2s ease;
-}
-
-.setting-slider::-webkit-slider-thumb:hover {
-  background: #2563eb;
-  transform: scale(1.1);
-}
-
-.setting-slider::-moz-range-thumb {
-  width: 20px;
-  height: 20px;
-  background: var(--accent-primary);
-  border-radius: 50%;
-  cursor: pointer;
-  border: none;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-}
-
-.checkbox-label {
   display: flex;
   align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  user-select: none;
+  justify-content: center;
+  z-index: 9999;
 }
 
-.checkbox-label input[type="checkbox"] {
-  width: 18px;
-  height: 18px;
-  accent-color: var(--accent-primary);
-  cursor: pointer;
-}
-
-.tnc-info {
-  margin-top: 20px;
-  padding: 12px;
-  background: var(--bg-tertiary);
-  border-radius: 6px;
-  border: 1px solid var(--border-color);
-}
-
-.tnc-info p {
-  margin: 6px 0;
-  font-size: 0.9rem;
-  color: var(--text-secondary);
-}
-
-.tnc-info p strong {
-  color: var(--text-primary);
-  font-weight: 600;
-}
-
-/* Dark theme adjustments for TNC settings */
-body.dark-theme .setting-row label {
-  color: var(--text-secondary);
-}
-
-body.dark-theme .setting-select {
-  background: var(--bg-primary);
-  color: var(--text-primary);
-  border-color: var(--border-color);
-}
-
-body.dark-theme .setting-select:focus {
-  border-color: var(--accent-primary);
-}
-
-body.dark-theme .setting-slider {
-  background: var(--bg-tertiary);
-}
-
-body.dark-theme .tnc-info {
-  background: var(--bg-tertiary);
-  border-color: var(--border-color);
-}
-
-body.dark-theme .tnc-info p {
-  color: var(--text-secondary);
-}
-
-body.dark-theme .tnc-info p strong {
+.loading-content {
+  text-align: center;
   color: var(--text-primary);
 }
 
-/* TNC Settings Simple Styles */
-.tnc-settings-simple {
-  margin-top: 12px;
-  padding: 12px;
-  background: var(--bg-secondary);
-  border-radius: 6px;
-  border: 1px solid var(--border-color);
+.loading-content h1 {
+  font-size: 2.5rem;
+  margin-bottom: 2rem;
+  color: var(--accent-primary);
 }
 
-.tnc-settings-simple .setting-row {
-  margin-bottom: 12px;
+.loading-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
 }
 
-.tnc-settings-simple .setting-row:last-child {
-  margin-bottom: 0;
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid var(--border-color);
+  border-top: 4px solid var(--accent-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
 }
 
-.tnc-settings-simple .setting-row label {
-  display: block;
-  margin-bottom: 4px;
-  font-size: 0.9rem;
-  font-weight: 500;
+.loading-spinner p {
   color: var(--text-secondary);
+  font-size: 1.1rem;
+  margin: 0;
 }
 
-.tnc-settings-simple .setting-row small {
-  display: block;
-  margin-top: 4px;
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  font-style: italic;
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
-.tnc-status {
-  margin-top: 16px;
-  padding: 12px;
-  background: var(--bg-primary);
-  border-radius: 6px;
-  border: 1px solid var(--border-color);
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-  line-height: 1.6;
-}
-
-.tnc-status strong {
-  color: var(--text-primary);
-  font-weight: 600;
-}
-
-/* Audio settings specific styles */
-.tnc-settings-simple .setting-slider {
-  width: 100%;
-  margin: 8px 0;
+.settings-toggle-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
