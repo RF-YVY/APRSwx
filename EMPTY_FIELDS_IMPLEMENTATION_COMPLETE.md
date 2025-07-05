@@ -29,6 +29,13 @@
 - **Added:** Proper placeholder styling for visual distinction
 - **Result:** Placeholder text is clearly grayed out and italic
 
+### 6. Runtime Error Fix (`websockets/settings_api.py`, `APRSMap.tsx`)
+- **Fixed:** Backend API returning latitude/longitude as strings instead of numbers
+- **Error:** `userLocation.latitude.toFixed is not a function`
+- **Solution:** Changed `str(settings_obj.latitude)` to `float(settings_obj.latitude)` in API
+- **Protection:** Added `Number()` conversion in frontend components for safety
+- **Result:** No more runtime errors when displaying location coordinates
+
 ## 🧪 TESTING VERIFICATION
 
 ### Backend Tests
@@ -72,13 +79,15 @@ passcode_input.value = ''  // not '-1' or any number
 ## 🔧 TECHNICAL DETAILS
 
 ### Key Files Modified:
-- `backend/websockets/settings_api.py` - API logic
+- `backend/websockets/settings_api.py` - API logic and location data types
 - `frontend/src/context/SettingsContext.tsx` - Settings loading logic
 - `frontend/src/components/UserSettingsSimple.tsx` - Input field rendering
+- `frontend/src/components/APRSMap.tsx` - Location marker and coordinate display
 - `frontend/src/App.css` - Placeholder styling
 
 ### Test Files Created:
 - `backend/test_empty_fields.py` - Comprehensive backend/API tests
+- `backend/test_location_fix.py` - Location data type verification tests
 - `frontend/test_empty_fields.html` - Interactive testing interface
 
 ## 🎯 MISSION ACCOMPLISHED
