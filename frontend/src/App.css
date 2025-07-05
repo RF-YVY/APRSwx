@@ -1796,3 +1796,58 @@ body.dark-theme .tnc-info p {
 body.dark-theme .tnc-info p strong {
   color: var(--text-primary);
 }
+
+/* TNC Settings Simple Styles */
+.tnc-settings-simple {
+  margin-top: 12px;
+  padding: 12px;
+  background: var(--bg-secondary);
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+}
+
+.tnc-settings-simple .setting-row {
+  margin-bottom: 12px;
+}
+
+.tnc-settings-simple .setting-row:last-child {
+  margin-bottom: 0;
+}
+
+.tnc-settings-simple .setting-row label {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.tnc-settings-simple .setting-row small {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.tnc-status {
+  margin-top: 16px;
+  padding: 12px;
+  background: var(--bg-primary);
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.tnc-status strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* Audio settings specific styles */
+.tnc-settings-simple .setting-slider {
+  width: 100%;
+  margin: 8px 0;
+}

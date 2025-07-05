@@ -385,6 +385,229 @@ const UserSettingsSimple: React.FC<UserSettingsSimpleProps> = ({
               </div>
             </div>
 
+            {/* TNC Settings */}
+            <div className="setting-group">
+              <label>TNC/Radio Interface:</label>
+              <small>Configure Terminal Node Controller for radio transmission</small>
+              <label className="checkbox-label">
+                <input
+                  type="checkbox"
+                  checked={settings.tncSettings.enabled}
+                  onChange={() => updateSettings({
+                    tncSettings: {
+                      ...settings.tncSettings,
+                      enabled: !settings.tncSettings.enabled
+                    }
+                  })}
+                />
+                Enable TNC Interface
+              </label>
+              
+              {settings.tncSettings.enabled && (
+                <div className="tnc-settings-simple">
+                  <div className="setting-row">
+                    <label>Connection Type:</label>
+                    <select
+                      value={settings.tncSettings.connectionType}
+                      onChange={(e) => updateSettings({
+                        tncSettings: {
+                          ...settings.tncSettings,
+                          connectionType: e.target.value as 'serial' | 'network' | 'usb'
+                        }
+                      })}
+                      className="setting-select"
+                    >
+                      <option value="serial">Serial Port</option>
+                      <option value="usb">USB</option>
+                      <option value="network">Network (TCP/IP)</option>
+                    </select>
+                  </div>
+
+                  {settings.tncSettings.connectionType === 'serial' && (
+                    <>
+                      <div className="setting-row">
+                        <label>Serial Port:</label>
+                        <select
+                          value={settings.tncSettings.port}
+                          onChange={(e) => updateSettings({
+                            tncSettings: {
+                              ...settings.tncSettings,
+                              port: e.target.value
+                            }
+                          })}
+                          className="setting-select"
+                        >
+                          <option value="COM1">COM1</option>
+                          <option value="COM2">COM2</option>
+                          <option value="COM3">COM3</option>
+                          <option value="COM4">COM4</option>
+                          <option value="COM5">COM5</option>
+                          <option value="COM6">COM6</option>
+                          <option value="COM7">COM7</option>
+                          <option value="COM8">COM8</option>
+                        </select>
+                      </div>
+
+                      <div className="setting-row">
+                        <label>Baud Rate:</label>
+                        <select
+                          value={settings.tncSettings.baudRate}
+                          onChange={(e) => updateSettings({
+                            tncSettings: {
+                              ...settings.tncSettings,
+                              baudRate: parseInt(e.target.value)
+                            }
+                          })}
+                          className="setting-select"
+                        >
+                          <option value={1200}>1200</option>
+                          <option value={9600}>9600</option>
+                          <option value={19200}>19200</option>
+                          <option value={38400}>38400</option>
+                        </select>
+                      </div>
+                    </>
+                  )}
+
+                  {settings.tncSettings.connectionType === 'network' && (
+                    <>
+                      <div className="setting-row">
+                        <label>Host:</label>
+                        <input
+                          type="text"
+                          value={settings.tncSettings.networkHost || ''}
+                          onChange={(e) => updateSettings({
+                            tncSettings: {
+                              ...settings.tncSettings,
+                              networkHost: e.target.value
+                            }
+                          })}
+                          placeholder="192.168.1.100"
+                          className="setting-input"
+                        />
+                      </div>
+
+                      <div className="setting-row">
+                        <label>Port:</label>
+                        <input
+                          type="number"
+                          value={settings.tncSettings.networkPort || 8001}
+                          onChange={(e) => updateSettings({
+                            tncSettings: {
+                              ...settings.tncSettings,
+                              networkPort: parseInt(e.target.value)
+                            }
+                          })}
+                          className="setting-input"
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  {/* Audio Configuration */}
+                  <div className="setting-row">
+                    <label>Audio Input Device:</label>
+                    <input
+                      type="text"
+                      value={settings.tncSettings.audioInput}
+                      onChange={(e) => updateSettings({
+                        tncSettings: {
+                          ...settings.tncSettings,
+                          audioInput: e.target.value
+                        }
+                      })}
+                      placeholder="default, Line In, Microphone, etc."
+                      className="setting-input"
+                    />
+                    <small>Where to receive packet audio from (sound card input)</small>
+                  </div>
+
+                  <div className="setting-row">
+                    <label>Audio Output Device:</label>
+                    <input
+                      type="text"
+                      value={settings.tncSettings.audioOutput}
+                      onChange={(e) => updateSettings({
+                        tncSettings: {
+                          ...settings.tncSettings,
+                          audioOutput: e.target.value
+                        }
+                      })}
+                      placeholder="default, Line Out, Speakers, etc."
+                      className="setting-input"
+                    />
+                    <small>Where to send packet audio to (sound card output)</small>
+                  </div>
+
+                  <div className="setting-row">
+                    <label>Input Gain: {settings.tncSettings.audioInputGain}%</label>
+                    <input
+                      type="range"
+                      min="0"
+                      max="100"
+                      value={settings.tncSettings.audioInputGain}
+                      onChange={(e) => updateSettings({
+                        tncSettings: {
+                          ...settings.tncSettings,
+                          audioInputGain: parseInt(e.target.value)
+                        }
+                      })}
+                      className="setting-slider"
+                    />
+                    <small>Adjust input audio level from radio</small>
+                  </div>
+
+                  <div className="setting-row">
+                    <label>Output Gain: {settings.tncSettings.audioOutputGain}%</label>
+                    <input
+                      type="range"
+                      min="0"
+                      max="100"
+                      value={settings.tncSettings.audioOutputGain}
+                      onChange={(e) => updateSettings({
+                        tncSettings: {
+                          ...settings.tncSettings,
+                          audioOutputGain: parseInt(e.target.value)
+                        }
+                      })}
+                      className="setting-slider"
+                    />
+                    <small>Adjust output audio level to radio</small>
+                  </div>
+
+                  <div className="setting-row">
+                    <label>PTT Method:</label>
+                    <select
+                      value={settings.tncSettings.pttMethod}
+                      onChange={(e) => updateSettings({
+                        tncSettings: {
+                          ...settings.tncSettings,
+                          pttMethod: e.target.value as any
+                        }
+                      })}
+                      className="setting-select"
+                    >
+                      <option value="vox">VOX</option>
+                      <option value="cat">CAT</option>
+                      <option value="rts">RTS</option>
+                      <option value="dtr">DTR</option>
+                      <option value="rigctl">Rigctl</option>
+                    </select>
+                  </div>
+
+                  <div className="tnc-status">
+                    <small>
+                      <strong>Status:</strong> {settings.tncSettings.enabled ? '🟢 Enabled' : '🔴 Disabled'}<br/>
+                      <strong>Connection:</strong> {settings.tncSettings.connectionType.toUpperCase()}<br/>
+                      <strong>PTT Method:</strong> {settings.tncSettings.pttMethod.toUpperCase()}<br/>
+                      <strong>Audio In:</strong> {settings.tncSettings.audioInput} ({settings.tncSettings.audioInputGain}%)<br/>
+                      <strong>Audio Out:</strong> {settings.tncSettings.audioOutput} ({settings.tncSettings.audioOutputGain}%)
+                    </small>
+                  </div>
+                </div>
+              )}
+            </div>
+
             {/* APRS-IS Connection */}
             <div className="setting-group">
               <label>APRS-IS Connection:</label>
