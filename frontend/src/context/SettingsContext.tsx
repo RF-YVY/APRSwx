@@ -1,11 +1,20 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
+interface UserLocation {
+  latitude: number;
+  longitude: number;
+  accuracy?: number;
+  source: 'gps' | 'manual' | 'map';
+}
+
 interface UserSettings {
   callsign: string;
   ssid: number;
   passcode: number;
-  location: { latitude: number; longitude: number } | null;
+  location: UserLocation | null;
+  autoGeneratePasscode: boolean;
   distanceUnit: 'km' | 'miles';
+  darkTheme: boolean;
   aprsIsConnected: boolean;
   aprsIsFilters: {
     distanceRange: number;
@@ -15,32 +24,90 @@ interface UserSettings {
   };
   tncSettings: {
     enabled: boolean;
+    // Connection Settings
     port: string;
     baudRate: number;
-    audioDevice: string;
-    pttMethod: string;
+    connectionType: 'serial' | 'network' | 'usb';
+    networkHost?: string;
+    networkPort?: number;
+    
+    // Audio Settings
+    audioInput: string;
+    audioOutput: string;
+    audioInputGain: number;
+    audioOutputGain: number;
+    
+    // PTT Settings
+    pttMethod: 'vox' | 'cat' | 'rts' | 'dtr' | 'gpio' | 'rigctl' | 'omnirig' | 'hamlib';
+    pttPin: string;
+    
+    // Radio Control Integration
+    radioControl: {
+      enabled: boolean;
+      type: 'rigctl' | 'omnirig' | 'hamlib' | 'none';
+      rigctlPath?: string;
+      rigctlArgs?: string;
+      omnirigPort?: number;
+      hamlibRigModel?: string;
+      hamlibDevice?: string;
+      frequency?: number;
+      mode?: string;
+    };
+    
+    // TNC Protocol Settings
+    kissMode: boolean;
+    txDelay: number;
+    persistence: number;
+    slotTime: number;
+    txTail: number;
+    fullDuplex: boolean;
+    
+    // Packet Settings
+    maxFrameLength: number;
+    retries: number;
+    respTime: number;
   };
 }
 
 const defaultSettings: UserSettings = {
   callsign: '',
   ssid: 0,
-  passcode: 0,
+  passcode: -1,
   location: null,
+  autoGeneratePasscode: true,
   distanceUnit: 'km',
+  darkTheme: false,
   aprsIsConnected: false,
   aprsIsFilters: {
-    distanceRange: 50,
-    stationTypes: ['all', 'mobile', 'fixed', 'weather'],
+    distanceRange: 100,
+    stationTypes: ['mobile', 'fixed', 'weather', 'digipeater', 'igate'],
     enableWeather: true,
     enableMessages: true
   },
   tncSettings: {
     enabled: false,
+    connectionType: 'serial',
     port: 'COM1',
     baudRate: 9600,
-    audioDevice: 'default',
-    pttMethod: 'VOX'
+    audioInput: 'default',
+    audioOutput: 'default',
+    audioInputGain: 50,
+    audioOutputGain: 50,
+    pttMethod: 'vox',
+    pttPin: 'RTS',
+    radioControl: {
+      enabled: false,
+      type: 'none'
+    },
+    kissMode: true,
+    txDelay: 30,
+    persistence: 63,
+    slotTime: 10,
+    txTail: 5,
+    fullDuplex: false,
+    maxFrameLength: 256,
+    retries: 3,
+    respTime: 3000
   }
 };
 

@@ -25,12 +25,48 @@ interface UserSettings {
   };
   tncSettings: {
     enabled: boolean;
+    // Connection Settings
     port: string;
     baudRate: number;
+    connectionType: 'serial' | 'network' | 'usb';
+    networkHost?: string;
+    networkPort?: number;
+    
+    // Audio Settings
     audioInput: string;
     audioOutput: string;
-    pttMethod: 'vox' | 'cat' | 'rts' | 'dtr';
+    audioInputGain: number;
+    audioOutputGain: number;
+    
+    // PTT Settings
+    pttMethod: 'vox' | 'cat' | 'rts' | 'dtr' | 'gpio' | 'rigctl' | 'omnirig' | 'hamlib';
     pttPin: string;
+    
+    // Radio Control Integration
+    radioControl: {
+      enabled: boolean;
+      type: 'rigctl' | 'omnirig' | 'hamlib' | 'none';
+      rigctlPath?: string;
+      rigctlArgs?: string;
+      omnirigPort?: number;
+      hamlibRigModel?: string;
+      hamlibDevice?: string;
+      frequency?: number;
+      mode?: string;
+    };
+    
+    // TNC Protocol Settings
+    kissMode: boolean;
+    txDelay: number;
+    persistence: number;
+    slotTime: number;
+    txTail: number;
+    fullDuplex: boolean;
+    
+    // Packet Settings
+    maxFrameLength: number;
+    retries: number;
+    respTime: number;
   };
 }
 
@@ -66,12 +102,28 @@ const UserSettingsComponent: React.FC<UserSettingsComponentProps> = ({
     },
     tncSettings: {
       enabled: false,
+      connectionType: 'serial',
       port: 'COM1',
       baudRate: 9600,
       audioInput: 'default',
       audioOutput: 'default',
+      audioInputGain: 50,
+      audioOutputGain: 50,
       pttMethod: 'vox',
-      pttPin: 'RTS'
+      pttPin: 'RTS',
+      radioControl: {
+        enabled: false,
+        type: 'none'
+      },
+      kissMode: true,
+      txDelay: 30,
+      persistence: 63,
+      slotTime: 10,
+      txTail: 5,
+      fullDuplex: false,
+      maxFrameLength: 256,
+      retries: 3,
+      respTime: 3000
     }
   };
 
@@ -253,12 +305,28 @@ const UserSettingsComponent: React.FC<UserSettingsComponentProps> = ({
           },
         tncSettings: {
           enabled: false,
+          connectionType: 'serial',
           port: 'COM1',
           baudRate: 9600,
           audioInput: 'default',
           audioOutput: 'default',
+          audioInputGain: 50,
+          audioOutputGain: 50,
           pttMethod: 'vox',
-          pttPin: 'RTS'
+          pttPin: 'RTS',
+          radioControl: {
+            enabled: false,
+            type: 'none'
+          },
+          kissMode: true,
+          txDelay: 30,
+          persistence: 63,
+          slotTime: 10,
+          txTail: 5,
+          fullDuplex: false,
+          maxFrameLength: 256,
+          retries: 3,
+          respTime: 3000
         }
       };
       updateSettings(resetSettings);
@@ -320,11 +388,23 @@ const UserSettingsComponent: React.FC<UserSettingsComponentProps> = ({
     });
   };
 
-  const handleTncSettingChange = (field: keyof UserSettings['tncSettings'], value: string | number) => {
+  const handleTncSettingChange = (field: keyof UserSettings['tncSettings'], value: string | number | boolean) => {
     updateSettings({
       tncSettings: {
         ...settings.tncSettings,
         [field]: value
+      }
+    });
+  };
+
+  const handleRadioControlChange = (field: keyof UserSettings['tncSettings']['radioControl'], value: any) => {
+    updateSettings({
+      tncSettings: {
+        ...settings.tncSettings,
+        radioControl: {
+          ...settings.tncSettings.radioControl,
+          [field]: value
+        }
       }
     });
   };
@@ -770,6 +850,7 @@ const UserSettingsComponent: React.FC<UserSettingsComponentProps> = ({
               <h4>TNC/Radio Settings</h4>
               <p className="setting-description">
                 Configure TNC (Terminal Node Controller) or radio interface settings for direct RF communication.
+                Includes support for Rigctl, OmniRig, and Hamlib radio control.
               </p>
               
               <div className="setting-row">
@@ -785,44 +866,95 @@ const UserSettingsComponent: React.FC<UserSettingsComponentProps> = ({
 
               {settings.tncSettings.enabled && (
                 <div className="tnc-settings-expanded">
+                  {/* Connection Settings */}
+                  <h5>Connection Settings</h5>
+                  
                   <div className="setting-row">
-                    <label>Serial Port:</label>
+                    <label>Connection Type:</label>
                     <select
-                      value={settings.tncSettings.port}
-                      onChange={(e) => handleTncSettingChange('port', e.target.value)}
+                      value={settings.tncSettings.connectionType}
+                      onChange={(e) => handleTncSettingChange('connectionType', e.target.value as 'serial' | 'network' | 'usb')}
                       className="setting-select"
                     >
-                      <option value="COM1">COM1</option>
-                      <option value="COM2">COM2</option>
-                      <option value="COM3">COM3</option>
-                      <option value="COM4">COM4</option>
-                      <option value="COM5">COM5</option>
-                      <option value="COM6">COM6</option>
-                      <option value="COM7">COM7</option>
-                      <option value="COM8">COM8</option>
-                      <option value="/dev/ttyUSB0">/dev/ttyUSB0</option>
-                      <option value="/dev/ttyACM0">/dev/ttyACM0</option>
+                      <option value="serial">Serial Port</option>
+                      <option value="usb">USB</option>
+                      <option value="network">Network (TCP/IP)</option>
                     </select>
                   </div>
 
-                  <div className="setting-row">
-                    <label>Baud Rate:</label>
-                    <select
-                      value={settings.tncSettings.baudRate}
-                      onChange={(e) => handleTncSettingChange('baudRate', parseInt(e.target.value))}
-                      className="setting-select"
-                    >
-                      <option value={1200}>1200</option>
-                      <option value={2400}>2400</option>
-                      <option value={4800}>4800</option>
-                      <option value={9600}>9600</option>
-                      <option value={19200}>19200</option>
-                      <option value={38400}>38400</option>
-                      <option value={57600}>57600</option>
-                      <option value={115200}>115200</option>
-                    </select>
-                  </div>
+                  {settings.tncSettings.connectionType === 'serial' && (
+                    <>
+                      <div className="setting-row">
+                        <label>Serial Port:</label>
+                        <select
+                          value={settings.tncSettings.port}
+                          onChange={(e) => handleTncSettingChange('port', e.target.value)}
+                          className="setting-select"
+                        >
+                          <option value="COM1">COM1</option>
+                          <option value="COM2">COM2</option>
+                          <option value="COM3">COM3</option>
+                          <option value="COM4">COM4</option>
+                          <option value="COM5">COM5</option>
+                          <option value="COM6">COM6</option>
+                          <option value="COM7">COM7</option>
+                          <option value="COM8">COM8</option>
+                          <option value="/dev/ttyUSB0">/dev/ttyUSB0 (Linux)</option>
+                          <option value="/dev/ttyACM0">/dev/ttyACM0 (Linux)</option>
+                          <option value="/dev/cu.usbserial">/dev/cu.usbserial (macOS)</option>
+                        </select>
+                      </div>
 
+                      <div className="setting-row">
+                        <label>Baud Rate:</label>
+                        <select
+                          value={settings.tncSettings.baudRate}
+                          onChange={(e) => handleTncSettingChange('baudRate', parseInt(e.target.value))}
+                          className="setting-select"
+                        >
+                          <option value={1200}>1200</option>
+                          <option value={2400}>2400</option>
+                          <option value={4800}>4800</option>
+                          <option value={9600}>9600</option>
+                          <option value={19200}>19200</option>
+                          <option value={38400}>38400</option>
+                          <option value={57600}>57600</option>
+                          <option value={115200}>115200</option>
+                        </select>
+                      </div>
+                    </>
+                  )}
+
+                  {settings.tncSettings.connectionType === 'network' && (
+                    <>
+                      <div className="setting-row">
+                        <label>Host/IP Address:</label>
+                        <input
+                          type="text"
+                          value={settings.tncSettings.networkHost || ''}
+                          onChange={(e) => handleTncSettingChange('networkHost', e.target.value)}
+                          placeholder="192.168.1.100 or hostname"
+                          className="setting-input"
+                        />
+                      </div>
+
+                      <div className="setting-row">
+                        <label>Port:</label>
+                        <input
+                          type="number"
+                          value={settings.tncSettings.networkPort || 8001}
+                          onChange={(e) => handleTncSettingChange('networkPort', parseInt(e.target.value))}
+                          min="1"
+                          max="65535"
+                          className="setting-input"
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  {/* Audio Settings */}
+                  <h5>Audio Settings</h5>
+                  
                   <div className="setting-row">
                     <label>Audio Input Device:</label>
                     <input
@@ -846,16 +978,47 @@ const UserSettingsComponent: React.FC<UserSettingsComponentProps> = ({
                   </div>
 
                   <div className="setting-row">
+                    <label>Input Gain: {settings.tncSettings.audioInputGain}%</label>
+                    <input
+                      type="range"
+                      min="0"
+                      max="100"
+                      value={settings.tncSettings.audioInputGain}
+                      onChange={(e) => handleTncSettingChange('audioInputGain', parseInt(e.target.value))}
+                      className="setting-slider"
+                    />
+                  </div>
+
+                  <div className="setting-row">
+                    <label>Output Gain: {settings.tncSettings.audioOutputGain}%</label>
+                    <input
+                      type="range"
+                      min="0"
+                      max="100"
+                      value={settings.tncSettings.audioOutputGain}
+                      onChange={(e) => handleTncSettingChange('audioOutputGain', parseInt(e.target.value))}
+                      className="setting-slider"
+                    />
+                  </div>
+
+                  {/* PTT Settings */}
+                  <h5>PTT (Push-to-Talk) Settings</h5>
+                  
+                  <div className="setting-row">
                     <label>PTT Method:</label>
                     <select
                       value={settings.tncSettings.pttMethod}
-                      onChange={(e) => handleTncSettingChange('pttMethod', e.target.value as 'vox' | 'cat' | 'rts' | 'dtr')}
+                      onChange={(e) => handleTncSettingChange('pttMethod', e.target.value as any)}
                       className="setting-select"
                     >
                       <option value="vox">VOX (Voice Operated)</option>
                       <option value="cat">CAT Control</option>
                       <option value="rts">RTS Pin</option>
                       <option value="dtr">DTR Pin</option>
+                      <option value="gpio">GPIO Pin</option>
+                      <option value="rigctl">Rigctl (Hamlib)</option>
+                      <option value="omnirig">OmniRig</option>
+                      <option value="hamlib">Hamlib Direct</option>
                     </select>
                   </div>
 
@@ -865,15 +1028,221 @@ const UserSettingsComponent: React.FC<UserSettingsComponentProps> = ({
                       type="text"
                       value={settings.tncSettings.pttPin}
                       onChange={(e) => handleTncSettingChange('pttPin', e.target.value)}
-                      placeholder="RTS, DTR, or CAT command"
+                      placeholder="RTS, DTR, GPIO pin number, or CAT command"
                       className="setting-input"
                     />
                   </div>
 
+                  {/* Radio Control Settings */}
+                  <h5>Radio Control Integration</h5>
+                  
+                  <div className="setting-row">
+                    <label className="checkbox-label">
+                      <input
+                        type="checkbox"
+                        checked={settings.tncSettings.radioControl.enabled}
+                        onChange={(e) => handleRadioControlChange('enabled', e.target.checked)}
+                      />
+                      Enable Radio Control
+                    </label>
+                  </div>
+
+                  {settings.tncSettings.radioControl.enabled && (
+                    <>
+                      <div className="setting-row">
+                        <label>Radio Control Type:</label>
+                        <select
+                          value={settings.tncSettings.radioControl.type}
+                          onChange={(e) => handleRadioControlChange('type', e.target.value as any)}
+                          className="setting-select"
+                        >
+                          <option value="none">None</option>
+                          <option value="rigctl">Rigctl (Hamlib)</option>
+                          <option value="omnirig">OmniRig</option>
+                          <option value="hamlib">Hamlib Direct</option>
+                        </select>
+                      </div>
+
+                      {settings.tncSettings.radioControl.type === 'rigctl' && (
+                        <>
+                          <div className="setting-row">
+                            <label>Rigctl Path:</label>
+                            <input
+                              type="text"
+                              value={settings.tncSettings.radioControl.rigctlPath || ''}
+                              onChange={(e) => handleRadioControlChange('rigctlPath', e.target.value)}
+                              placeholder="C:\\Program Files\\Hamlib\\bin\\rigctl.exe"
+                              className="setting-input"
+                            />
+                          </div>
+
+                          <div className="setting-row">
+                            <label>Rigctl Arguments:</label>
+                            <input
+                              type="text"
+                              value={settings.tncSettings.radioControl.rigctlArgs || ''}
+                              onChange={(e) => handleRadioControlChange('rigctlArgs', e.target.value)}
+                              placeholder="-m 1 -r COM3 -s 9600"
+                              className="setting-input"
+                            />
+                          </div>
+                        </>
+                      )}
+
+                      {settings.tncSettings.radioControl.type === 'omnirig' && (
+                        <div className="setting-row">
+                          <label>OmniRig Port:</label>
+                          <select
+                            value={settings.tncSettings.radioControl.omnirigPort || 1}
+                            onChange={(e) => handleRadioControlChange('omnirigPort', parseInt(e.target.value))}
+                            className="setting-select"
+                          >
+                            <option value={1}>Rig 1</option>
+                            <option value={2}>Rig 2</option>
+                          </select>
+                        </div>
+                      )}
+
+                      {settings.tncSettings.radioControl.type === 'hamlib' && (
+                        <>
+                          <div className="setting-row">
+                            <label>Hamlib Rig Model:</label>
+                            <input
+                              type="text"
+                              value={settings.tncSettings.radioControl.hamlibRigModel || ''}
+                              onChange={(e) => handleRadioControlChange('hamlibRigModel', e.target.value)}
+                              placeholder="IC-7300, FT-991A, etc."
+                              className="setting-input"
+                            />
+                          </div>
+
+                          <div className="setting-row">
+                            <label>Hamlib Device:</label>
+                            <input
+                              type="text"
+                              value={settings.tncSettings.radioControl.hamlibDevice || ''}
+                              onChange={(e) => handleRadioControlChange('hamlibDevice', e.target.value)}
+                              placeholder="COM3, /dev/ttyUSB0, etc."
+                              className="setting-input"
+                            />
+                          </div>
+                        </>
+                      )}
+
+                      <div className="setting-row">
+                        <label>Frequency (Hz):</label>
+                        <input
+                          type="number"
+                          value={settings.tncSettings.radioControl.frequency || 144390000}
+                          onChange={(e) => handleRadioControlChange('frequency', parseInt(e.target.value))}
+                          placeholder="144390000"
+                          className="setting-input"
+                        />
+                      </div>
+
+                      <div className="setting-row">
+                        <label>Mode:</label>
+                        <select
+                          value={settings.tncSettings.radioControl.mode || 'FM'}
+                          onChange={(e) => handleRadioControlChange('mode', e.target.value)}
+                          className="setting-select"
+                        >
+                          <option value="FM">FM</option>
+                          <option value="NFM">NFM (Narrow FM)</option>
+                          <option value="USB">USB</option>
+                          <option value="LSB">LSB</option>
+                          <option value="AM">AM</option>
+                        </select>
+                      </div>
+                    </>
+                  )}
+
+                  {/* Advanced TNC Settings */}
+                  <h5>Advanced TNC Settings</h5>
+                  
+                  <div className="setting-row">
+                    <label className="checkbox-label">
+                      <input
+                        type="checkbox"
+                        checked={settings.tncSettings.kissMode}
+                        onChange={(e) => handleTncSettingChange('kissMode', e.target.checked)}
+                      />
+                      KISS Mode
+                    </label>
+                  </div>
+
+                  <div className="setting-row">
+                    <label>TX Delay: {settings.tncSettings.txDelay * 10}ms</label>
+                    <input
+                      type="range"
+                      min="0"
+                      max="255"
+                      value={settings.tncSettings.txDelay}
+                      onChange={(e) => handleTncSettingChange('txDelay', parseInt(e.target.value))}
+                      className="setting-slider"
+                    />
+                  </div>
+
+                  <div className="setting-row">
+                    <label>Persistence: {settings.tncSettings.persistence}</label>
+                    <input
+                      type="range"
+                      min="32"
+                      max="255"
+                      value={settings.tncSettings.persistence}
+                      onChange={(e) => handleTncSettingChange('persistence', parseInt(e.target.value))}
+                      className="setting-slider"
+                    />
+                  </div>
+
+                  <div className="setting-row">
+                    <label>Slot Time: {settings.tncSettings.slotTime * 10}ms</label>
+                    <input
+                      type="range"
+                      min="0"
+                      max="255"
+                      value={settings.tncSettings.slotTime}
+                      onChange={(e) => handleTncSettingChange('slotTime', parseInt(e.target.value))}
+                      className="setting-slider"
+                    />
+                  </div>
+
+                  <div className="setting-row">
+                    <label>TX Tail: {settings.tncSettings.txTail * 10}ms</label>
+                    <input
+                      type="range"
+                      min="0"
+                      max="255"
+                      value={settings.tncSettings.txTail}
+                      onChange={(e) => handleTncSettingChange('txTail', parseInt(e.target.value))}
+                      className="setting-slider"
+                    />
+                  </div>
+
+                  <div className="setting-row">
+                    <label className="checkbox-label">
+                      <input
+                        type="checkbox"
+                        checked={settings.tncSettings.fullDuplex}
+                        onChange={(e) => handleTncSettingChange('fullDuplex', e.target.checked)}
+                      />
+                      Full Duplex
+                    </label>
+                  </div>
+
                   <div className="tnc-info">
                     <p><strong>Status:</strong> {settings.tncSettings.enabled ? '🟢 Enabled' : '🔴 Disabled'}</p>
-                    <p><strong>Interface:</strong> {settings.tncSettings.port} @ {settings.tncSettings.baudRate} baud</p>
+                    <p><strong>Connection:</strong> {settings.tncSettings.connectionType.toUpperCase()}</p>
+                    {settings.tncSettings.connectionType === 'serial' && (
+                      <p><strong>Interface:</strong> {settings.tncSettings.port} @ {settings.tncSettings.baudRate} baud</p>
+                    )}
+                    {settings.tncSettings.connectionType === 'network' && (
+                      <p><strong>Network:</strong> {settings.tncSettings.networkHost}:{settings.tncSettings.networkPort}</p>
+                    )}
                     <p><strong>PTT:</strong> {settings.tncSettings.pttMethod.toUpperCase()}</p>
+                    {settings.tncSettings.radioControl.enabled && (
+                      <p><strong>Radio Control:</strong> {settings.tncSettings.radioControl.type.toUpperCase()}</p>
+                    )}
                   </div>
                 </div>
               )}

@@ -1640,3 +1640,159 @@ body.dark-theme .setting-group small {
     font-size: 12px;
   }
 }
+
+/* TNC Settings Styles */
+.tnc-settings-expanded {
+  margin-top: 16px;
+  padding: 16px;
+  background: var(--bg-secondary);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+.tnc-settings-expanded h5 {
+  color: var(--accent-primary);
+  margin: 20px 0 12px 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border-bottom: 2px solid var(--accent-primary);
+  padding-bottom: 4px;
+}
+
+.tnc-settings-expanded h5:first-child {
+  margin-top: 0;
+}
+
+.setting-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.setting-row label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.setting-select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 2px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.setting-select:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.setting-slider {
+  width: 100%;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  background: var(--bg-tertiary);
+  border-radius: 3px;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.setting-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  background: var(--accent-primary);
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  transition: all 0.2s ease;
+}
+
+.setting-slider::-webkit-slider-thumb:hover {
+  background: #2563eb;
+  transform: scale(1.1);
+}
+
+.setting-slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  background: var(--accent-primary);
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent-primary);
+  cursor: pointer;
+}
+
+.tnc-info {
+  margin-top: 20px;
+  padding: 12px;
+  background: var(--bg-tertiary);
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+}
+
+.tnc-info p {
+  margin: 6px 0;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.tnc-info p strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* Dark theme adjustments for TNC settings */
+body.dark-theme .setting-row label {
+  color: var(--text-secondary);
+}
+
+body.dark-theme .setting-select {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+body.dark-theme .setting-select:focus {
+  border-color: var(--accent-primary);
+}
+
+body.dark-theme .setting-slider {
+  background: var(--bg-tertiary);
+}
+
+body.dark-theme .tnc-info {
+  background: var(--bg-tertiary);
+  border-color: var(--border-color);
+}
+
+body.dark-theme .tnc-info p {
+  color: var(--text-secondary);
+}
+
+body.dark-theme .tnc-info p strong {
+  color: var(--text-primary);
+}
