@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  db:
+    image: postgis/postgis:14-3.2
+    environment:
+      POSTGRES_DB: aprswx
+      POSTGRES_USER: aprswx
+      POSTGRES_PASSWORD: aprswx_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aprswx"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # Redis for WebSocket/Channels
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # APRSwx Application
+  app:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=False
+      - SECRET_KEY=your-secret-key-change-this
+      - DATABASE_URL=postgresql://aprswx:aprswx_password@db:5432/aprswx
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./logs:/app/logs
+      - static_files:/app/staticfiles
+    restart: unless-stopped
+
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - static_files:/var/www/static
+      - ./ssl:/etc/ssl/certs
+    depends_on:
+      - app
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
+  static_files:

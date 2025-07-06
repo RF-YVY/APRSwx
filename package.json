@@ -1,0 +1,56 @@
+{
+  "name": "aprswx",
+  "version": "1.0.0",
+  "description": "Complete APRS and Weather Monitoring System",
+  "main": "README.md",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/RF-YVY/APRSwx.git"
+  },
+  "keywords": [
+    "aprs",
+    "amateur-radio",
+    "weather",
+    "monitoring",
+    "radar",
+    "real-time",
+    "django",
+    "react",
+    "websockets",
+    "leaflet",
+    "mapping"
+  ],
+  "author": "RF-YVY",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/RF-YVY/APRSwx/issues"
+  },
+  "homepage": "https://github.com/RF-YVY/APRSwx#readme",
+  "engines": {
+    "node": ">=16.0.0",
+    "python": ">=3.8.0"
+  },
+  "scripts": {
+    "start": "docker-compose up -d",
+    "stop": "docker-compose down",
+    "build": "docker-compose build",
+    "logs": "docker-compose logs -f",
+    "setup": "docker-compose up -d db redis && sleep 10 && docker-compose run --rm app python manage.py migrate",
+    "clean": "docker-compose down -v"
+  },
+  "dependencies": {},
+  "devDependencies": {},
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "files": [
+    "docker-compose.yml",
+    "Dockerfile",
+    "nginx.conf",
+    "deploy.sh",
+    "deploy.bat",
+    "DISTRIBUTION_README.md",
+    "PRODUCTION_CONFIG.md",
+    "README.md"
+  ]
+}

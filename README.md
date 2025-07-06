@@ -2,6 +2,30 @@
 
 A comprehensive APRS (Automatic Packet Reporting System) software client with advanced features including packet send/receive capabilities, interactive mapping, weather radar overlays, and real-time updates.
 
+## 📦 Quick Installation from GitHub Packages
+
+### Option 1: One-Line Install (Recommended)
+```bash
+curl -sSL https://raw.githubusercontent.com/RF-YVY/APRSwx/main/install.sh | bash
+```
+
+### Option 2: Docker from GitHub Container Registry
+```bash
+# Pull the latest image
+docker pull ghcr.io/rf-yvy/aprswx:main
+
+# Run with Docker Compose
+curl -O https://raw.githubusercontent.com/RF-YVY/APRSwx/main/docker-compose.yml
+docker-compose up -d
+```
+
+### Option 3: NPM Package (Frontend Components)
+```bash
+npm install @rf-yvy/aprswx-frontend
+```
+
+## 🚀 What's New in v1.0
+
 ## 🎯 Current System Status
 
 ### ✅ **COMPLETED - Enhanced UI/UX & Full System Integration**

@@ -1,0 +1,173 @@
+name: Build and Publish to GitHub Packages
+
+on:
+  push:
+    branches: [ main ]
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  # Test the application
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+    
+    - name: Install Python dependencies
+      run: |
+        cd backend
+        pip install -r requirements.txt
+    
+    - name: Install Node.js dependencies
+      run: |
+        cd frontend
+        npm ci
+    
+    - name: Run Python tests
+      run: |
+        cd backend
+        python manage.py test
+    
+    - name: Build frontend
+      run: |
+        cd frontend
+        npm run build
+
+  # Build and push Docker image
+  build-and-push-image:
+    runs-on: ubuntu-latest
+    needs: test
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Log in to Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=semver,pattern={{version}}
+          type=semver,pattern={{major}}.{{minor}}
+          type=semver,pattern={{major}}
+          type=sha
+
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+
+  # Create NPM package for frontend components
+  publish-npm:
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.ref == 'refs/heads/main'
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        registry-url: 'https://npm.pkg.github.com'
+        scope: '@rf-yvy'
+    
+    - name: Install dependencies
+      run: |
+        cd frontend
+        npm ci
+    
+    - name: Build package
+      run: |
+        cd frontend
+        npm run build
+    
+    - name: Publish to GitHub Packages
+      run: |
+        cd frontend
+        npm publish
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # Create release
+  create-release:
+    runs-on: ubuntu-latest
+    needs: [build-and-push-image, publish-npm]
+    if: startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: write
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Create Release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: APRSwx ${{ github.ref }}
+        body: |
+          ## APRSwx Release ${{ github.ref }}
+          
+          ### 🚀 What's New
+          - Complete APRS and weather monitoring system
+          - Real-time mapping with Leaflet integration
+          - Weather radar overlays and lightning data
+          - WebSocket-based live updates
+          - Professional user interface
+          
+          ### 📦 Docker Package
+          ```bash
+          docker run -p 8000:8000 ghcr.io/rf-yvy/aprswx:${{ github.ref }}
+          ```
+          
+          ### 🐳 Docker Compose
+          ```bash
+          curl -O https://raw.githubusercontent.com/RF-YVY/APRSwx/${{ github.ref }}/docker-compose.yml
+          docker-compose up -d
+          ```
+          
+          ### 📋 Documentation
+          - [Setup Guide](https://github.com/RF-YVY/APRSwx/blob/main/DISTRIBUTION_README.md)
+          - [Production Config](https://github.com/RF-YVY/APRSwx/blob/main/PRODUCTION_CONFIG.md)
+          
+          ### ✅ Features
+          - APRS-IS connectivity
+          - Real-time station tracking
+          - Weather radar integration
+          - TNC/Radio interface support
+          - Professional UI with empty field fixes
+          - Runtime error resolution
+        draft: false
+        prerelease: false
