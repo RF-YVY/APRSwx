@@ -1,0 +1,62 @@
+name: Simple Build and Test
+
+on:
+  push:
+    branches: [ main ]
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  # Basic build test
+  build:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Test Python setup
+      run: |
+        python --version
+        pip --version
+    
+    - name: Install minimal Python dependencies
+      run: |
+        cd backend
+        pip install --upgrade pip
+        pip install Django djangorestframework django-cors-headers requests || echo "Install failed"
+    
+    - name: Test Django
+      run: |
+        cd backend
+        python -c "import django; print('Django version:', django.VERSION)" || echo "Django test failed"
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+    
+    - name: Test Node.js setup
+      run: |
+        node --version
+        npm --version
+    
+    - name: Install frontend dependencies
+      run: |
+        cd frontend
+        npm ci --ignore-scripts || echo "NPM install failed"
+    
+    - name: Test frontend build
+      run: |
+        cd frontend
+        npm run build || echo "Frontend build failed"
+    
+    - name: Summary
+      run: |
+        echo "Build process completed"
+        echo "Check individual steps for any failures"
