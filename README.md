@@ -1,3 +1,5 @@
+##Note: This has become a bit of a mess for me, pretty sure the lightning conversion from grlevelx placefile to json isn't working, Radar works though!, I haven't tested the TNC fuctions yet. I'm takeing a break, gonna watch some tv or something, get the laptop out of my lap so my dog can sit with me again.  Give it a try, do what you want! Cheers!
+
 # APRSwx - Full-Featured APRS Software Client
 
 A comprehensive APRS (Automatic Packet Reporting System) software client with advanced features including packet send/receive capabilities, interactive mapping, weather radar overlays, and real-time updates.
