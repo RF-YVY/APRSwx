@@ -1,0 +1,25 @@
+# Minimal requirements for CI/CD builds
+# Core Django requirements
+Django>=4.2.0,<5.0
+djangorestframework>=3.14.0
+django-cors-headers>=4.0.0
+
+# Channels for WebSocket (simplified)
+channels>=4.0.0
+
+# Database
+psycopg2-binary>=2.9.0
+Django-environ>=0.10.0
+
+# APRS processing
+aprslib>=0.7.0
+pyserial>=3.5
+
+# Basic utilities
+requests>=2.28.0
+python-dateutil>=2.8.0
+pytz>=2023.3
+
+# Testing
+pytest>=7.0.0
+pytest-django>=4.5.0

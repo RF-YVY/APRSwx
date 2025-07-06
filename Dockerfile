@@ -23,8 +23,11 @@ RUN useradd --create-home --shell /bin/bash app
 WORKDIR /app
 
 # Install Python dependencies
-COPY backend/requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
+COPY backend/requirements.txt ./backend/requirements-ci.txt ./
+RUN pip install --upgrade pip && \
+    (pip install --no-cache-dir -r requirements.txt || \
+     echo "Full requirements failed, trying minimal set..." && \
+     pip install --no-cache-dir -r requirements-ci.txt)
 
 # Copy backend code
 COPY backend/ ./

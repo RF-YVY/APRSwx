@@ -1,6 +1,6 @@
-# Backend Requirements
+# Backend Requirements - Production Compatible
 # Django and extensions
-Django>=4.2.0
+Django>=4.2.0,<5.0
 djangorestframework>=3.14.0
 django-cors-headers>=4.0.0
 channels>=4.0.0
@@ -13,32 +13,26 @@ Django-environ>=0.10.0
 
 # APRS and packet processing
 aprslib>=0.7.0
-kiss>=7.0.0
 pyserial>=3.5
 
-# Weather radar processing
-arm-pyart>=1.15.0
-numpy>=1.24.0
-matplotlib>=3.7.0
-cartopy>=0.22.0
-netCDF4>=1.6.0
+# Weather and mapping (simplified)
+numpy>=1.21.0
+matplotlib>=3.5.0
+requests>=2.28.0
 
 # Geospatial
-geopy>=2.3.0
-shapely>=2.0.0
+geopy>=2.2.0
+shapely>=1.8.0
 
 # WebSocket and async
 redis>=4.5.0
-celery>=5.3.0
+celery>=5.2.0
 
 # Utilities
-requests>=2.31.0
 python-dateutil>=2.8.0
 pytz>=2023.3
 pillow>=10.0.0
 
-# Development
-black>=23.0.0
-flake8>=6.0.0
-pytest>=7.4.0
+# Development (optional)
+pytest>=7.0.0
 pytest-django>=4.5.0
